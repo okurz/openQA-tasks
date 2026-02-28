@@ -12,6 +12,13 @@ As an openQA user or developer, I want to authenticate my API requests using my 
 
 A new table `ssh_keys` will be created to store public keys associated with users.
 
+**Decision: Separate Table vs. Reusing Existing Tables**
+
+- **Symmetric vs. Asymmetric:** `api_keys` stores symmetric secrets. `ssh_keys` stores public keys. Mixing them would lead to confusing column semantics (e.g., storing a public key in a "secret" column).
+- **Multiple Keys:** A separate table naturally supports multiple keys per user (e.g., home vs. work) without cluttering the `users` table.
+- **Metadata:** Allows storing SSH-specific metadata like `fingerprint` for efficient lookups and `comment` for user reference.
+- **Maintainability:** Clear separation of authentication concerns simplifies logic in `OpenQA::Shared::Controller::Auth` and future schema migrations.
+
 **Table `ssh_keys`**:
 
 - `id`: BigSerial (Primary Key)
@@ -25,6 +32,9 @@ A new table `ssh_keys` will be created to store public keys associated with user
 ### 2. Authentication Flow
 
 We will introduce a new authentication method in `OpenQA::Shared::Controller::Auth`.
+
+**Why Signing is Necessary**
+A public key is, by definition, public. Simply providing it does not authenticate a user, as anyone could claim any user's public key. To authenticate, the client must prove possession of the corresponding private key. This is achieved by **signing** a "proof of identity" (a combination of request path and timestamp). This is the standard way to "conveniently reuse" SSH keys for stateless authentication without a challenge-response handshake.
 
 **Required Headers**:
 
