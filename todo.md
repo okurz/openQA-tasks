@@ -12,4 +12,5 @@ confirmation.
     e.g. api keys
 31. We store some limited user data. Create a privacy policy following usual
     industry best practices for a privacy policy
-32. Provide a way to authenticate using SSH keys instead of API key+secret
+32. *PLANNED* Provide a way to authenticate using SSH keys instead of API
+    key+secret
