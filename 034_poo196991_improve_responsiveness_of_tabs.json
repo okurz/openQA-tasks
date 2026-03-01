@@ -1,0 +1,21 @@
+{
+  "ticket_id": "196991",
+  "subject": "Improve responsiveness of tabs in job view",
+  "status": "Workable",
+  "priority": "Normal",
+  "assignee": "okurz",
+  "url": "https://progress.opensuse.org/issues/196991",
+  "description": "## Motivation\nWhen opening big openQA test jobs with many test modules (e.g. ltp_syscalls) one see \"Loading test modules…\" wheel. That blocks clicking on the other linear tabs (one of: Logs & Assets, Settings, Investigation, Comments, Next & previous results) until whole test is loaded (up to 1 min). Loading test modules should be possible to cancel by clicking to the new tab.\n\n## Acceptance criteria\n* **AC1:** \"Big jobs\" do not prevent to switch to other test details tabs while loading (during the AJAX request and during client-side processing).\n* **AC2:** Test details for small jobs are as easily accessible as before.\n\n## Suggestions\n* Some kind of async \"switch tab\" handling to abort the loading of modules or continue loading the modules in the background or some fancy incremental loading of details\n* Do DOM-insertions in chunks allowing the event loop to run in between or alternatively for \"big jobs\" only render everything on request, e.g. a button \"this job is huge, click here to load details\"\n* Run some big LTP test locally to have data to play with",
+  "journals": [
+    {
+      "author": "okurz",
+      "date": "2026-02-23T19:23:35Z",
+      "notes": "tracking as tasks/025_poo196991_improve_responsiveness_of_tabs_in_job_details_view in (to be checked out) feature/025_poo196991_improve_responsiveness_of_tabs_in_job_details_view"
+    },
+    {
+      "author": "okurz",
+      "date": "2026-02-28T16:37:16Z",
+      "notes": "Accessing https://openqa.opensuse.org also takes very long to render results due to the inclusion of job group 132 \"Investigation\" that has more than 10k jobs.. Accessing a page like https://openqa.opensuse.org/tests/overview?distri=aeon&distri=microos&distri=openqa&distri=opensuse&version=Tumbleweed&build=&groupid=22&groupid=107&groupid=2&groupid=132 shows a warning \"Only 2000 results included, please narrow down your search parameters. \" so we already limit the impact of \"too big results\", that's good. We should consider to use the same or a very similar approach for the job group and index pages."
+    }
+  ]
+}
