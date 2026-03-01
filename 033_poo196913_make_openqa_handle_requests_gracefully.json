@@ -1,0 +1,37 @@
+{
+  "ticket_id": "196913",
+  "title": "Make openQA handle requests for huge job groups gracefully",
+  "status": "Workable",
+  "priority": "Normal",
+  "assignee": "okurz",
+  "url": "https://progress.opensuse.org/issues/196913",
+  "description": {
+    "motivation": "#196709 has shown that o3 yields 502's on huge job groups. We should make openQA handle that gracefully.",
+    "acceptance_criteria": [
+      "AC1: openQA handles job group retrievals gracefully regardless of the amount of included jobs"
+    ],
+    "suggestions": [
+      "Try with the example job group from #196709 to understand the problem",
+      "Analyze the code relevant with doing the lower level database requests and Perl handling",
+      "Reproduce the issue with a local test",
+      "Build in limiting to abort with clear error message when there are \"too many jobs\" and/or split the requests into smaller, etc."
+    ]
+  },
+  "journals": [
+    {
+      "date": "2026-02-21T16:32:35Z",
+      "author": "okurz",
+      "content": "https://github.com/os-autoinst/openQA/pull/7026"
+    },
+    {
+      "date": "2026-02-26T18:12:43Z",
+      "author": "nicksinger",
+      "content": "please address the outstanding comments on your PR"
+    },
+    {
+      "date": "2026-02-28T16:42:59Z",
+      "author": "okurz",
+      "content": "Accessing https://openqa.opensuse.org also takes very long to render results due to the inclusion of job group 132 \"Investigation\" that has more than 10k jobs.. Accessing a page like https://openqa.opensuse.org/tests/overview?distri=aeon&distri=microos&distri=openqa&distri=opensuse&version=Tumbleweed&build=&groupid=22&groupid=107&groupid=2&groupid=132 shows a warning \"Only 2000 results included, please narrow down your search parameters. \" so we already limit the impact of \"too big results\", that's good. We should consider to use the same or a very similar approach for the job group and index pages."
+    }
+  ]
+}
