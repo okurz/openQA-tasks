@@ -38,8 +38,10 @@ confirmation.
 37. *REVIEW* Is there a new version of bootstrap that we should migrate to?
     Does it refresh our design? Or are there alternative approaches to
     consider to make openQA look more modern?
-38. *PLANNED* We prefer Mojolicious style function signatures. We already use that in
-    many places. Look up all places left and convert files one by one with
-    good verification for each package (file) before continuing. Compare to
-    os-autoinst commit 264fcd83 or corresponding PR
+38. *PLANNED* We prefer Mojolicious style function signatures. We already use
+    that in many places. Look up all places left and convert files one by one
+    with good verification for each package (file) before continuing. Compare
+    to os-autoinst commit 264fcd83 or corresponding PR
     https://github.com/os-autoinst/os-autoinst/pull/1696
+41. Ensure documents are wrapped consistently at 80 characters (or 120
+    characters as applicable), e.g. all .asciidoc in docs and Readme.asciidoc
