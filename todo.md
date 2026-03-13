@@ -49,4 +49,6 @@ confirmation.
     black
 43. Convert all .asciidoc to .md like
     https://github.com/os-autoinst/os-autoinst/pull/2813 for os-autoinst
-44. Deduplicate .ini and Setup.pm and config test
+44. *DONE* Deduplicate .ini and Setup.pm and config test
+    -> https://github.com/os-autoinst/openQA/pull/7111
+45. *PLANNED* central YAML schema for openQA configuration
