@@ -45,3 +45,8 @@ confirmation.
     https://github.com/os-autoinst/os-autoinst/pull/1696
 41. Ensure documents are wrapped consistently at 80 characters (or 120
     characters as applicable), e.g. all .asciidoc in docs and Readme.asciidoc
+42. Implement python style checks with ruff+ty from qem-bot instead of (just)
+    black
+43. Convert all .asciidoc to .md like
+    https://github.com/os-autoinst/os-autoinst/pull/2813 for os-autoinst
+44. Deduplicate .ini and Setup.pm and config test
