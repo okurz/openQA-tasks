@@ -1,0 +1,198 @@
++ target=t
++ export PERL_TEST_WARNINGS_ONLY_REPORT_WARNINGS=0
++ PERL_TEST_WARNINGS_ONLY_REPORT_WARNINGS=0
++ export COVERAGE=1
++ COVERAGE=1
++ export COVERDB_SUFFIX=_t
++ COVERDB_SUFFIX=_t
++ export JUNIT_PACKAGE=openQA
++ JUNIT_PACKAGE=openQA
++ export JUNIT_NAME_MANGLE=perl
++ JUNIT_NAME_MANGLE=perl
++ export JUNIT_OUTPUT_FILE=test-results/junit/t.xml
++ JUNIT_OUTPUT_FILE=test-results/junit/t.xml
++ export PERL_TEST_HARNESS_DUMP_TAP=test-results
++ PERL_TEST_HARNESS_DUMP_TAP=test-results
++ export 'HARNESS=--harness TAP::Harness::JUnit --timer'
++ HARNESS='--harness TAP::Harness::JUnit --timer'
++ export CHECK_GIT_STATUS=1
++ CHECK_GIT_STATUS=1
++ mkdir -p test-results/junit
++ sudo chown -R squamata test-results
+^@^@+ export OPENQA_TEST_TIMEOUT_SCALE_CI=3
++ OPENQA_TEST_TIMEOUT_SCALE_CI=3
++ export EXTRA_PROVE_ARGS=-v
++ EXTRA_PROVE_ARGS=-v
++ export OPENQA_FULLSTACK_TEMP_DIR=/home/squamata/project/test-results/fullstack
++ OPENQA_FULLSTACK_TEMP_DIR=/home/squamata/project/test-results/fullstack
++ export PROVE=tools/prove_wrapper
++ PROVE=tools/prove_wrapper
++ make test-t
+make test-with-database TIMEOUT_M=25 PROVE_ARGS="$HARNESS t/*.t" GLOBIGNORE="t/*tidy*:t/*compile*:t/*style*:"
+make[1]: Entering directory '/home/squamata/project'
+test -d /dev/shm/tpg && (pg_ctl -D /dev/shm/tpg -s status >&/dev/null || pg_ctl -D /dev/shm/tpg -s start) || ./t/test_postgresql /dev/shm/tpg
+The files belonging to this database system will be owned by user "squamata".
+This user must also own the server process.
+
+The database cluster will be initialized with locale "C.utf8".
+The default database encoding has accordingly been set to "UTF8".
+The default text search configuration will be set to "english".
+
+Data page checksums are enabled.
+
+creating directory /dev/shm/tpg ... ok
+creating subdirectories ... ok
+selecting dynamic shared memory implementation ... posix
+selecting default "max_connections" ... 100
+selecting default "shared_buffers" ... 128MB
+selecting default time zone ... Etc/UTC
+creating configuration files ... ok
+running bootstrap script ... ok
+performing post-bootstrap initialization ... ok
+
+Sync to disk skipped.
+The data directory might become corrupt if the operating system crashes.
+
+initdb: warning: enabling "trust" authentication for local connections
+initdb: hint: You can change this by editing pg_hba.conf or using the option -A, or --auth-local and --auth-host, the next time you run initdb.
+
+Success. You can now start the database server using:
+
+    pg_ctl -D /dev/shm/tpg -l logfile start
+
+PostgreSQL logs will be stored in /dev/shm/tpg/log/postgresql-openqa-test.log.
+waiting for server to start.... done
+server started
+Now export TEST_PG like:
+
+  export TEST_PG='DBI:Pg:dbname=openqa_test;host=/dev/shm/tpg'
+
+ and if you don't need it anymore, use pg_ctl -D /dev/shm/tpg stop
+make test-unit-and-integration TEST_PG="DBI:Pg:dbname=openqa_test;host=/dev/shm/tpg"
+make[2]: Entering directory '/home/squamata/project'
+export GLOBIGNORE="t/*tidy*:t/*compile*:t/*style*:";\
+export DEVEL_COVER_DB_FORMAT=JSON;\
+export PERL5OPT="-mJSON::PP -It/lib -MCoverageWorkaround -MDevel::Cover=-select_re,'^/lib',+ignore_re,lib/perlcritic/Perl/Critic/Policy|t/lib/CoverageWorkaround,-coverage,statement,-db,cover_db_t, -It/lib -I/home/squamata/project/t/lib -I/home/squamata/project/external/os-autoinst-common/lib -MTest::CheckGitStatus -MOpenQA::Test::PatchDeparse";\
+RETRY=0 HOOK=./tools/delete-coverdb-folder timeout --foreground -s SIGINT -k 5 -v $((25 * 2 * (0 + 1) ))m tools/retry "tools/prove_wrapper" -l --harness TAP::Harness::JUnit --timer t/*.t
+Running prove with TAP output check ...
+[16:57:20] t/01-test-utilities.t ..................................... ok     6492 ms ( 0.00 usr  0.00 sys +  5.21 cusr  0.29 csys =  5.50 CPU)
+[16:57:20] t/02-pod.t ................................................ ok      792 ms ( 0.03 usr  0.00 sys +  0.71 cusr  0.09 csys =  0.83 CPU)
+[16:57:21] t/03-auth-openid.t ........................................ ok      734 ms ( 0.00 usr  0.00 sys +  0.63 cusr  0.11 csys =  0.74 CPU)
+[16:57:30] t/03-auth.t ............................................... ok     8676 ms ( 0.01 usr  0.00 sys +  7.96 cusr  0.38 csys =  8.35 CPU)
+[16:57:42] t/04-scheduler.t .......................................... ok    11825 ms ( 0.04 usr  0.00 sys + 11.08 cusr  0.42 csys = 11.54 CPU)
+[16:57:53] t/05-scheduler-cancel.t ................................... ok    11141 ms ( 0.02 usr  0.00 sys + 10.38 cusr  0.44 csys = 10.84 CPU)
+[16:58:00] t/05-scheduler-capabilities.t ............................. ok     7276 ms ( 0.01 usr  0.00 sys +  6.81 cusr  0.28 csys =  7.10 CPU)
+[16:58:21] t/05-scheduler-dependencies.t ............................. ok    21309 ms ( 0.09 usr  0.01 sys + 19.88 cusr  0.52 csys = 20.50 CPU)
+[16:58:27] t/05-scheduler-full.t ..................................... skipped: set FULLSTACK=1 (be careful)
+[16:58:40] t/05-scheduler-restart-and-duplicate.t .................... ok    12285 ms ( 0.04 usr  0.01 sys + 11.49 cusr  0.40 csys = 11.94 CPU)
+[16:58:44] t/05-scheduler-serialize-directly-chained-dependencies.t .. ok     4472 ms ( 0.00 usr  0.00 sys +  4.23 cusr  0.26 csys =  4.49 CPU)
+[16:58:52] t/06-users.t .............................................. ok     7298 ms ( 0.01 usr  0.00 sys +  6.86 cusr  0.31 csys =  7.18 CPU)
+[16:58:59] t/07-api_keys.t ........................................... ok     7282 ms ( 0.00 usr  0.00 sys +  6.82 cusr  0.34 csys =  7.16 CPU)
+[16:59:09] t/09-job_clone.t .......................................... ok    10441 ms ( 0.01 usr  0.01 sys +  9.67 cusr  0.48 csys = 10.17 CPU)
+[16:59:17] t/10-jobs-referal.t ....................................... ok     8121 ms ( 0.01 usr  0.00 sys +  7.57 cusr  0.40 csys =  7.98 CPU)
+[16:59:25] t/10-jobs-results.t ....................................... ok     7984 ms ( 0.01 usr  0.00 sys +  7.36 cusr  0.44 csys =  7.81 CPU)
+[16:59:41] t/10-jobs.t ............................................... ok    15925 ms ( 0.07 usr  0.01 sys + 14.33 cusr  0.87 csys = 15.28 CPU)
+[16:59:50] t/10-overview_badge.t ..................................... ok     8737 ms ( 0.01 usr  0.00 sys +  8.08 cusr  0.44 csys =  8.53 CPU)
+[17:00:03] t/10-tests_overview.t ..................................... ok    13008 ms ( 0.05 usr  0.01 sys + 12.28 cusr  0.43 csys = 12.77 CPU)
+[17:00:08] t/11-commands.t ........................................... ok     4485 ms ( 0.00 usr  0.00 sys +  4.22 cusr  0.27 csys =  4.49 CPU)
+[17:00:15] t/12-profiler.t ........................................... ok     7933 ms ( 0.01 usr  0.00 sys +  7.38 cusr  0.43 csys =  7.82 CPU)
+[17:00:33] t/13-joblocks.t ........................................... ok    17997 ms ( 0.11 usr  0.01 sys + 16.77 cusr  0.46 csys = 17.35 CPU)
+[17:00:44] t/14-grutasks-git.t ....................................... ok    10647 ms ( 0.02 usr  0.01 sys +  9.17 cusr  0.56 csys =  9.76 CPU)
+[17:00:50] t/14-grutasks.t ........................................... skipped: set HEAVY=1 to execute (takes longer)
+[17:01:13] t/15-assets.t ............................................. ok    23122 ms ( 0.04 usr  0.01 sys +  9.93 cusr  0.50 csys = 10.48 CPU)
+[17:01:18] t/15-shared-plugin-gru.t .................................. ok     4474 ms ( 0.00 usr  0.00 sys +  4.19 cusr  0.29 csys =  4.48 CPU)
+[17:01:26] t/16-markdown.t ........................................... ok     7769 ms ( 0.00 usr  0.00 sys +  7.22 cusr  0.41 csys =  7.63 CPU)
+[17:01:27] t/16-utils-job-templates.t ................................ ok      913 ms ( 0.00 usr  0.00 sys +  0.77 cusr  0.15 csys =  0.92 CPU)
+[17:01:35] t/16-utils-runcmd.t ....................................... ok     8875 ms ( 0.02 usr  0.00 sys +  8.08 cusr  0.59 csys =  8.69 CPU)
+[17:01:43] t/16-utils-vcs-provider.t ................................. ok     7318 ms ( 0.00 usr  0.00 sys +  6.85 cusr  0.34 csys =  7.19 CPU)
+[17:01:44] t/16-utils.t .............................................. ok     1097 ms ( 0.02 usr  0.00 sys +  0.97 cusr  0.14 csys =  1.13 CPU)
+[17:01:58] t/17-build_tagging.t ...................................... ok    14302 ms ( 0.03 usr  0.00 sys + 13.43 cusr  0.49 csys = 13.95 CPU)
+[17:02:11] t/17-labels_carry_over.t .................................. ok    12337 ms ( 0.02 usr  0.00 sys + 11.51 cusr  0.49 csys = 12.02 CPU)
+[17:02:17] t/20-stale-job-detection.t ................................ ok     6386 ms ( 0.00 usr  0.00 sys +  5.87 cusr  0.30 csys =  6.17 CPU)
+[17:02:26] t/21-needles.t ............................................ ok     9281 ms ( 0.01 usr  0.01 sys +  8.61 cusr  0.48 csys =  9.11 CPU)
+[17:02:41] t/22-dashboard.t .......................................... ok    14464 ms ( 0.03 usr  0.01 sys + 13.65 cusr  0.47 csys = 14.16 CPU)
+[17:02:50] t/23-amqp.t ............................................... ok     8934 ms ( 0.01 usr  0.00 sys +  8.34 cusr  0.33 csys =  8.68 CPU)
+[17:02:58] t/24-worker-engine.t ...................................... ok     8736 ms ( 0.02 usr  0.00 sys +  2.60 cusr  0.39 csys =  3.01 CPU)
+[17:03:05] t/24-worker-jobs.t ........................................ ok     6156 ms ( 0.04 usr  0.00 sys +  5.81 cusr  0.34 csys =  6.19 CPU)
+[17:03:11] t/24-worker-overall.t ..................................... ok     6143 ms ( 0.04 usr  0.00 sys +  5.76 cusr  0.39 csys =  6.19 CPU)
+[17:03:12] t/24-worker-settings.t .................................... ok     1261 ms ( 0.00 usr  0.01 sys +  1.11 cusr  0.16 csys =  1.28 CPU)
+[17:03:17] t/24-worker-webui-connection.t ............................ ok     5413 ms ( 0.02 usr  0.00 sys +  5.13 cusr  0.30 csys =  5.45 CPU)
+[17:03:26] t/25-bugs.t ............................................... ok     8820 ms ( 0.00 usr  0.00 sys +  8.24 cusr  0.38 csys =  8.62 CPU)
+[17:03:28] t/25-cache-client.t ....................................... ok     2061 ms ( 0.01 usr  0.00 sys +  1.84 cusr  0.22 csys =  2.07 CPU)
+[WARN] sending incremental file list
+rsync: [sender] change_dir "/home/squamata/project/empty" failed: No such file or directory (2)
+rsync: [Receiver] mkdir "/home/squamata/project/nowhewre/tests" failed: No such file or directory (2)
+rsync error: error in file IO (code 11) at main.c(791) [Receiver=3.4.1]
+[ERROR] cmd returned 11
+
+    #   Failed test 'rsync error message'
+    #   at t/25-cache-service.t line 132.
+    # STDERR:
+    # 
+    # doesn't match:
+    # (?^u:rsync error:.*)
+    # as expected
+    # Looks like you failed 1 test of 44.
+
+#   Failed test 'OpenQA::CacheService::Task::Sync'
+#   at t/25-cache-service.t line 671.
+# Looks like you failed 1 test of 22.
+[17:04:29] t/25-cache-service.t ...................................... 
+Dubious, test returned 1 (wstat 256, 0x100)
+Failed 1/22 subtests 
+[17:04:43] t/25-cache.t .............................................. ok    13360 ms ( 0.02 usr  0.00 sys +  9.60 cusr  0.50 csys = 10.12 CPU)
+[17:04:53] t/25-downloader.t ......................................... ok    10350 ms ( 0.01 usr  0.00 sys +  8.65 cusr  0.49 csys =  9.15 CPU)
+[17:04:58] t/25-serverstartup.t ...................................... ok     5236 ms ( 0.01 usr  0.00 sys +  4.91 cusr  0.33 csys =  5.25 CPU)
+[17:05:03] t/26-controllerrunning.t .................................. ok     5162 ms ( 0.01 usr  0.00 sys +  4.88 cusr  0.28 csys =  5.17 CPU)
+[17:05:12] t/27-errorpages.t ......................................... ok     9163 ms ( 0.00 usr  0.00 sys +  8.53 cusr  0.43 csys =  8.96 CPU)
+[17:05:19] t/27-websockets.t ......................................... ok     6004 ms ( 0.01 usr  0.01 sys +  5.54 cusr  0.33 csys =  5.89 CPU)
+[17:05:20] t/28-logging.t ............................................ ok     1791 ms ( 0.03 usr  0.00 sys +  1.62 cusr  0.17 csys =  1.82 CPU)
+[17:05:25] t/30-test_parser.t ........................................ ok     4285 ms ( 0.23 usr  0.02 sys +  3.89 cusr  0.39 csys =  4.53 CPU)
+[17:05:26] t/31-api_descriptions.t ................................... ok      949 ms ( 0.00 usr  0.00 sys +  0.81 cusr  0.14 csys =  0.95 CPU)
+[17:05:30] t/31-client.t ............................................. ok     4929 ms ( 0.00 usr  0.00 sys +  4.65 cusr  0.29 csys =  4.94 CPU)
+[17:05:39] t/31-client_archive.t ..................................... ok     8970 ms ( 0.01 usr  0.00 sys +  8.35 cusr  0.42 csys =  8.78 CPU)
+[17:05:50] t/31-client_file.t ........................................ ok    10610 ms ( 1.99 usr  0.08 sys +  9.77 cusr  0.84 csys = 12.68 CPU)
+[17:05:55] t/32-openqa_client.t ...................................... skipped: set HEAVY=1 to execute (takes longer)
+[17:06:01] t/33-developer_mode.t ..................................... skipped: set FULLSTACK=1 (be careful)
+[17:06:11] t/34-developer_mode-unit.t ................................ ok     9970 ms ( 0.02 usr  0.00 sys +  9.06 cusr  0.45 csys =  9.53 CPU)
+[17:06:13] t/35-script_clone_job.t ................................... ok     1735 ms ( 0.01 usr  0.00 sys +  1.58 cusr  0.18 csys =  1.77 CPU)
+[17:06:13] t/35-script_clone_job_suse.t .............................. ok      588 ms ( 0.00 usr  0.00 sys +  0.45 cusr  0.14 csys =  0.59 CPU)
+[17:06:21] t/36-job_group_settings.t ................................. ok     7996 ms ( 0.01 usr  0.00 sys +  7.43 cusr  0.42 csys =  7.86 CPU)
+[17:06:30] t/37-limit_assets.t ....................................... ok     9193 ms ( 0.03 usr  0.01 sys +  8.46 cusr  0.45 csys =  8.95 CPU)
+[17:06:40] t/38-workers-table.t ...................................... ok     9482 ms ( 0.01 usr  0.00 sys +  8.84 cusr  0.46 csys =  9.31 CPU)
+[17:06:48] t/39-scheduled_products-table.t ........................... ok     7952 ms ( 0.01 usr  0.00 sys +  7.35 cusr  0.41 csys =  7.77 CPU)
+[17:06:49] t/40-job_settings.t ....................................... ok      926 ms ( 0.00 usr  0.00 sys +  0.78 cusr  0.15 csys =  0.93 CPU)
+[17:06:56] t/40-openqa-clone-job.t ................................... ok     7173 ms ( 0.00 usr  0.01 sys +  6.70 cusr  0.46 csys =  7.17 CPU)
+[17:07:43] t/40-script_load_dump_templates.t ......................... ok    47600 ms ( 0.02 usr  0.00 sys + 42.74 cusr  4.19 csys = 46.95 CPU)
+[17:07:50] t/40-script_openqa-clone-custom-git-refspec.t ............. ok     6363 ms ( 0.02 usr  0.00 sys +  5.63 cusr  0.79 csys =  6.44 CPU)
+[17:07:50] t/40-script_openqa-label-all.t ............................ ok      571 ms ( 0.00 usr  0.00 sys +  0.45 cusr  0.13 csys =  0.58 CPU)
+[17:07:58] t/41-audit-log.t .......................................... ok     7873 ms ( 0.01 usr  0.00 sys +  7.29 cusr  0.45 csys =  7.75 CPU)
+[17:08:08] t/42-df-based-cleanup.t ................................... ok     9365 ms ( 0.01 usr  0.00 sys +  8.74 cusr  0.38 csys =  9.13 CPU)
+[17:08:18] t/42-screenshots.t ........................................ ok    10155 ms ( 0.00 usr  0.00 sys +  9.27 cusr  0.44 csys =  9.71 CPU)
+[17:08:27] t/43-cli-api.t ............................................ ok     8858 ms ( 0.02 usr  0.01 sys +  8.22 cusr  0.50 csys =  8.75 CPU)
+[17:08:43] t/43-cli-archive.t ........................................ ok    15821 ms ( 0.01 usr  0.00 sys + 14.64 cusr  0.67 csys = 15.32 CPU)
+[17:08:53] t/43-cli-schedule.t ....................................... ok    10061 ms ( 0.01 usr  0.00 sys +  9.34 cusr  0.48 csys =  9.83 CPU)
+[17:08:53] t/43-cli.t ................................................ ok      645 ms ( 0.00 usr  0.00 sys +  0.52 cusr  0.14 csys =  0.66 CPU)
+[17:09:02] t/43-scheduling-and-worker-scalability.t .................. ok     8986 ms ( 0.04 usr  0.00 sys +  8.66 cusr  0.75 csys =  9.45 CPU)
+[17:09:03] t/44-scripts-modify_needle.t .............................. ok     1121 ms ( 0.00 usr  0.00 sys +  0.88 cusr  0.23 csys =  1.11 CPU)
+[17:09:04] t/44-scripts.t ............................................ skipped: set HEAVY=1 to execute (takes longer)
+[17:09:05] t/45-make-update-deps.t ................................... ok     1092 ms ( 0.00 usr  0.00 sys +  0.84 cusr  0.26 csys =  1.10 CPU)
+[17:09:05] t/46-munin.t .............................................. ok      495 ms ( 0.00 usr  0.00 sys +  0.37 cusr  0.14 csys =  0.51 CPU)
+[17:09:13] t/basic.t ................................................. ok     7357 ms ( 0.00 usr  0.00 sys +  6.90 cusr  0.33 csys =  7.23 CPU)
+[17:09:14] t/config.t ................................................ ok     1559 ms ( 0.00 usr  0.00 sys +  1.37 cusr  0.20 csys =  1.57 CPU)
+[17:09:44] t/deploy.t ................................................ ok    29891 ms ( 0.00 usr  0.00 sys + 28.10 cusr  1.21 csys = 29.31 CPU)
+[17:09:51] t/full-stack.t ............................................ skipped: set FULLSTACK=1 (be careful)
+[17:09:51]
+
+Test Summary Report
+-------------------
+t/25-cache-service.t                                    (Wstat: 256 (exited 1) Tests: 22 Failed: 1)
+  Failed test:  21
+  Non-zero exit status: 1
+Files=87, Tests=2447, 757.767 wallclock secs ( 3.70 usr  0.35 sys + 651.27 cusr 38.55 csys = 693.87 CPU)
+Result: FAIL
+make[2]: *** [Makefile:276: test-unit-and-integration] Error 1
+make[2]: Leaving directory '/home/squamata/project'
+make[1]: *** [Makefile:271: test-with-database] Error 2
+make[1]: Leaving directory '/home/squamata/project'
+make: *** [Makefile:240: test-t] Error 2
