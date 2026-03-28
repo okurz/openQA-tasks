@@ -52,3 +52,16 @@ confirmation.
 44. *DONE* Deduplicate .ini and Setup.pm and config test
     -> https://github.com/os-autoinst/openQA/pull/7111
 45. *PLANNED* central YAML schema for openQA configuration
+49. Migrate from assetpack to vite 8 including rolldown which was recently
+    released.  Reference https://vite.dev/blog/announcing-vite8
+52. test-gitlint is called in separate GHA but also as part of the generic
+    checkstyle GHA so duplicate. We should consider to exclude gitlint from
+    generic checkstyle at best by separating make targets in Makefile already
+    and call the according in GHAs
+53. https://github.com/os-autoinst/openQA/pull/7132 is a revert of
+    https://github.com/os-autoinst/openQA/pull/7120 as all tests showed up as
+    "dark blue" so we lost different result colors. Bring back
+    https://github.com/os-autoinst/openQA/pull/7120 but fix colors properly.
+54. https://github.com/os-autoinst/openQA/pull/7188 is a revert of
+    github.com/os-autoinst/openQA/pull/7126 due to all timestamps showing
+    "just now". Fix it.
