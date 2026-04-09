@@ -84,6 +84,12 @@ As an openQA developer, I want to use modern frontend tooling (Vite, Sass, ES mo
 - **Fix Broken Assets**: Address the issue where assets are not served correctly in `test` mode (`make run-webui-test-db`).
 - **Template Migration**: Ensure all templates use the unified `asset` or `vite` helpers.
 
+### 7. UI Test & Script Execution Compatibility
+
+- **Script Initialization Timing**: Vite's use of `<script type="module">` defers script execution until after HTML parsing. Ensure that UI components (e.g., search boxes, tables) are fully initialized before Selenium tests attempt to interact with them, or adjust scripts that assume immediate execution.
+- **Global Scope Adjustments**: ES modules isolate variables to the module scope. Legacy inline event handlers (e.g., `onclick="doSomething()"`) or inter-script dependencies will fail. Explicitly attach required functions and variables (like `jQuery` or specific UI callbacks) to the global `window` object.
+- **Test Adaptations**: Update Selenium tests (`t/ui/*.t`) to include explicit waits for elements or initialization states (e.g., waiting for specific DOM changes or a global readiness flag) that may now occur asynchronously due to module loading changes.
+
 ## Verification Plan
 
 ### Automated Tests
