@@ -6,25 +6,25 @@ document in tasks/ in a numbered fashion, e.g. "11. my task" ->
 "tasks/011_my_task.md" and inform the user. Do not execute the plan without
 confirmation.
 
-30. *DONE* Offer each user to delete their user details on an openQA instance.
+30. _DONE_ Offer each user to delete their user details on an openQA instance.
     As we track users in places like the audit log we should anonymize user
     entries there and remove when there is data that is only relevant for this
     user, e.g. api keys
-31. *REVIEW* We store some limited user data. Create a privacy policy
+31. _REVIEW_ We store some limited user data. Create a privacy policy
     following usual industry best practices for a privacy policy
-32. *PLANNED* Provide a way to authenticate using SSH keys instead of API
+32. _PLANNED_ Provide a way to authenticate using SSH keys instead of API
     key+secret
-33. *PLANNED*
-34. *PLANNED*
+33. _PLANNED_
+34. _PLANNED_
 35. follow-up to task 30: we re-use the "api keys" page for users to request
     deleting their data so abusing the page with not fitting name. We should
     either rename the page title, URL, description and according references or
     split out the user deletion and potential future extensions into a
     separate page. Also consider task 32 "authenticate using SSH keys" also
-    needing a place where users can manage their public SSH keys.  Proposal:
+    needing a place where users can manage their public SSH keys. Proposal:
     Rename "Appearance" into "Profile" and move the deletion dialog there,
     possibly also merging api keys and ssh keys
-36. *REVIEW* Within the Perl ecosystem it is a common practice to split tests
+36. _REVIEW_ Within the Perl ecosystem it is a common practice to split tests
     into dynamic tests in the "t/" folder and author tests in the "xt/"
     folder. The author tests can be excluded from any build environment test
     calls and focus on dynamic tests. A similar change was done in os-autoinst
@@ -35,33 +35,42 @@ confirmation.
     accordingly and ensure that our upstream CI system circleCI still calls
     all checks and tests applicable. Within our OBS package build instructions
     in dist/rpm/ we can leave out all author tests consistently
-37. *REVIEW* Is there a new version of bootstrap that we should migrate to?
+37. _REVIEW_ Is there a new version of bootstrap that we should migrate to?
     Does it refresh our design? Or are there alternative approaches to
     consider to make openQA look more modern?
-38. *PLANNED* We prefer Mojolicious style function signatures. We already use
+38. _PLANNED_ We prefer Mojolicious style function signatures. We already use
     that in many places. Look up all places left and convert files one by one
     with good verification for each package (file) before continuing. Compare
     to os-autoinst commit 264fcd83 or corresponding PR
     https://github.com/os-autoinst/os-autoinst/pull/1696
-41. Ensure documents are wrapped consistently at 80 characters (or 120
+39. Ensure documents are wrapped consistently at 80 characters (or 120
     characters as applicable), e.g. all .asciidoc in docs and Readme.asciidoc
-42. Implement python style checks with ruff+ty from qem-bot instead of (just)
+40. Implement python style checks with ruff+ty from qem-bot instead of (just)
     black
-43. Convert all .asciidoc to .md like
+41. Convert all .asciidoc to .md like
     https://github.com/os-autoinst/os-autoinst/pull/2813 for os-autoinst
-44. *DONE* Deduplicate .ini and Setup.pm and config test
-    -> https://github.com/os-autoinst/openQA/pull/7111
-45. *PLANNED* central YAML schema for openQA configuration
-49. Migrate from assetpack to vite 8 including rolldown which was recently
-    released.  Reference https://vite.dev/blog/announcing-vite8
-52. test-gitlint is called in separate GHA but also as part of the generic
+42. _DONE_ Deduplicate .ini and Setup.pm and config test ->
+    https://github.com/os-autoinst/openQA/pull/7111
+43. _PLANNED_ central YAML schema for openQA configuration
+44. Migrate from assetpack to vite 8 including rolldown which was recently
+    released. Reference https://vite.dev/blog/announcing-vite8
+45. test-gitlint is called in separate GHA but also as part of the generic
     checkstyle GHA so duplicate. We should consider to exclude gitlint from
     generic checkstyle at best by separating make targets in Makefile already
     and call the according in GHAs
-53. https://github.com/os-autoinst/openQA/pull/7132 is a revert of
+46. https://github.com/os-autoinst/openQA/pull/7132 is a revert of
     https://github.com/os-autoinst/openQA/pull/7120 as all tests showed up as
     "dark blue" so we lost different result colors. Bring back
     https://github.com/os-autoinst/openQA/pull/7120 but fix colors properly.
-54. https://github.com/os-autoinst/openQA/pull/7188 is a revert of
+47. https://github.com/os-autoinst/openQA/pull/7188 is a revert of
     github.com/os-autoinst/openQA/pull/7126 due to all timestamps showing
     "just now". Fix it.
+48. _DONE_ In os-autoinst commit e28007f5 I converted all asciidoc files to markdown.
+    Now for openQA we should do the same by using well established tools like
+    pandoc and as necessary manual fixup, e.g. for more advanced features like
+    sub-document inclusions or cross-references. Convert all asciidoc files,
+    update references and document conversions and inclusions and tooling,
+    e.g. tools/generate-docs tools/generate-documentation
+    tools/generate-documentation-genapi, Makefile, .github/checklist.yml,
+    dist/rpm/openQA.spec, docs/Gemfile
+49. _DONE_ Fix missing coverage in lib/OpenQA/BuildResults.pm reported in #7291
