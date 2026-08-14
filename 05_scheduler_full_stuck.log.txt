@@ -1,0 +1,89 @@
++ target=fullstack-unstable
++ export PERL_TEST_WARNINGS_ONLY_REPORT_WARNINGS=0
++ PERL_TEST_WARNINGS_ONLY_REPORT_WARNINGS=0
++ export COVERAGE=1
++ COVERAGE=1
++ export COVERDB_SUFFIX=_fullstack-unstable
++ COVERDB_SUFFIX=_fullstack-unstable
++ export JUNIT_PACKAGE=openQA
++ JUNIT_PACKAGE=openQA
++ export JUNIT_NAME_MANGLE=perl
++ JUNIT_NAME_MANGLE=perl
++ export JUNIT_OUTPUT_FILE=test-results/junit/fullstack-unstable.xml
++ JUNIT_OUTPUT_FILE=test-results/junit/fullstack-unstable.xml
++ export PERL_TEST_HARNESS_DUMP_TAP=test-results
++ PERL_TEST_HARNESS_DUMP_TAP=test-results
++ export 'HARNESS=--harness TAP::Harness::JUnit --timer'
++ HARNESS='--harness TAP::Harness::JUnit --timer'
++ export CHECK_GIT_STATUS=1
++ CHECK_GIT_STATUS=1
++ mkdir -p test-results/junit
++ export OPENQA_TEST_TIMEOUT_SCALE_CI=3
++ OPENQA_TEST_TIMEOUT_SCALE_CI=3
++ export EXTRA_PROVE_ARGS=-v
++ EXTRA_PROVE_ARGS=-v
++ export OPENQA_FULLSTACK_TEMP_DIR=/root/project/test-results/fullstack
++ OPENQA_FULLSTACK_TEMP_DIR=/root/project/test-results/fullstack
++ export LANGUAGE= LANG=C.utf8
++ LANGUAGE=
++ LANG=C.utf8
++ chmod 777 /root/project/.. /root/project
++ user=testuser
++ id -u testuser
++ useradd testuser
++ chown -R testuser:testuser /root/project
++ cp -vr /root/.ssh /home/testuser/.ssh
+'/root/.ssh' -> '/home/testuser/.ssh'
+'/root/.ssh/known_hosts' -> '/home/testuser/.ssh/known_hosts'
+'/root/.ssh/id_rsa' -> '/home/testuser/.ssh/id_rsa'
+'/root/.ssh/id_rsa.pub' -> '/home/testuser/.ssh/id_rsa.pub'
++ chown -R testuser:testuser /home/testuser/.ssh
++ sudo --preserve-env -u testuser make test-fullstack-unstable
+^@^@make test-with-database FULLSTACK=1 TIMEOUT_M=15 PROVE_ARGS="$HARNESS t/05-scheduler-full.t" RETRY=5
+make[1]: Entering directory '/root/project'
+test -d /dev/shm/tpg && (pg_ctl -D /dev/shm/tpg -s status >&/dev/null || pg_ctl -D /dev/shm/tpg -s start) || ./t/test_postgresql /dev/shm/tpg
+The files belonging to this database system will be owned by user "testuser".
+This user must also own the server process.
+
+The database cluster will be initialized with locale "C.utf8".
+The default database encoding has accordingly been set to "UTF8".
+The default text search configuration will be set to "english".
+
+Data page checksums are enabled.
+
+creating directory /dev/shm/tpg ... ok
+creating subdirectories ... ok
+selecting dynamic shared memory implementation ... posix
+selecting default "max_connections" ... 100
+selecting default "shared_buffers" ... 128MB
+selecting default time zone ... Etc/UTC
+creating configuration files ... ok
+running bootstrap script ... ok
+performing post-bootstrap initialization ... ok
+
+Sync to disk skipped.
+The data directory might become corrupt if the operating system crashes.
+
+initdb: warning: enabling "trust" authentication for local connections
+initdb: hint: You can change this by editing pg_hba.conf or using the option -A, or --auth-local and --auth-host, the next time you run initdb.
+
+Success. You can now start the database server using:
+
+    /usr/lib/postgresql18/bin/pg_ctl -D /dev/shm/tpg -l logfile start
+
+PostgreSQL logs will be stored in /dev/shm/tpg/log/postgresql-openqa-test.log.
+waiting for server to start.... done
+server started
+Now export TEST_PG like:
+
+  export TEST_PG='DBI:Pg:dbname=openqa_test;host=/dev/shm/tpg'
+
+ and if you don't need it anymore, use pg_ctl -D /dev/shm/tpg stop
+make test-unit-and-integration TEST_PG="DBI:Pg:dbname=openqa_test;host=/dev/shm/tpg"
+make[2]: Entering directory '/root/project'
+export GLOBIGNORE="";\
+export DEVEL_COVER_DB_FORMAT=JSON;\
+export PERL5OPT="-mJSON::PP -It/lib -MCoverageWorkaround -MDevel::Cover=-select_re,'^/lib',+ignore_re,lib/perlcritic/Perl/Critic/Policy|t/lib/CoverageWorkaround,-coverage,statement,-db,cover_db_fullstack-unstable, -It/lib -I/root/project/t/lib -I/root/project/external/os-autoinst-common/lib -MTest::CheckGitStatus -MOpenQA::Test::PatchDeparse";\
+RETRY=5 HEAVY=0 FULLSTACK=1 HOOK=./tools/delete-coverdb-folder timeout --foreground -s SIGINT -k 5 -v $((15 * 2 * (5 + 1) ))m tools/retry "tools/prove_wrapper" -l -j2 --harness TAP::Harness::JUnit --timer t/05-scheduler-full.t
+Retry 1 of 5 …
+Running prove with TAP output check ...

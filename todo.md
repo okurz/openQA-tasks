@@ -74,3 +74,19 @@ confirmation.
     tools/generate-documentation-genapi, Makefile, .github/checklist.yml,
     dist/rpm/openQA.spec, docs/Gemfile
 49. _DONE_ Fix missing coverage in lib/OpenQA/BuildResults.pm reported in #7291
+87. /tests/overview shows the number of restarts for tests. Following up on
+    that we should allow in the "Filter" box and according URL query
+    parameters to filter on "tests restarted more than N times"
+95. `openqa-clone-job` supports a reproduce parameter. Extend to optionally
+    include the exact worker class combinations so that one can reproduce on
+    the very same worker environment on request
+101. test developers want to access the remote VNC port and/or SSH of openQA
+     SUTs. hints for that are also shown in the openQA webUI interactive mode.
+     However this needs direct access to the worker host which is often
+     prevented by according network or firewall separation and can also be
+     considered unsafe. the openQA webUI should allow operators and admins to
+     remote control VNC and SSH to the remote testing SUTs by proxying the
+     traffic accordingly in a reliable, easy to reach but also secure way.
+102. openQA already reports badges visualizing test and build status. Provide
+     a convenient way to copy a Markdown snippet referencing such test or
+     build badge, e.g. a copy button on /tests/details with explanation text
