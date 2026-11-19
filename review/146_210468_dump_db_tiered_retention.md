@@ -10,12 +10,15 @@ before any code change or commit (git-workflow).
 
 ## Approvals
 
-| Decision | Approver | Date |
-|---|---|---|
-| Plan only; implementation pending review | okurz | 2026-11-17 |
-| Prune scope unchanged: the pre-deployment dump is disposable (Q22) | okurz | 2026-11-17 |
-| Compression and archive tier rejected | okurz | 2026-11-17 |
-| Atomic dump write: the one remaining fix | okurz | 2026-11-17 |
+| Decision                                                           | Approver | Date       |
+| ------------------------------------------------------------------ | -------- | ---------- |
+| Plan only; implementation pending review                           | okurz    | 2026-11-17 |
+| Prune scope unchanged: the pre-deployment dump is disposable (Q22) | okurz    | 2026-11-17 |
+| Compression and archive tier rejected                              | okurz    | 2026-11-17 |
+| Atomic dump write: the one remaining fix                           | okurz    | 2026-11-17 |
+| Implementation in Bash with CLI flags (-f, -d, -h) and atomic trap | okurz    | 2026-11-19 |
+| Standalone test t/45-dump-db.t mocking pg_dump                     | okurz    | 2026-11-19 |
+| Docs reference --help as single source of truth                    | okurz    | 2026-11-19 |
 
 ## Problem
 
@@ -46,29 +49,34 @@ failed run destroys the same day's earlier good dump, leaves a partial file that
 ## Tasks
 
 ### Task 1: Atomic dump write
-**Files:** `script/dump-db`, `t/`.
+
+**Files:** `script/dump-db`, `t/45-dump-db.t`.
 
 **Acceptance criteria**
-- [ ] A failed `pg_dump` leaves the previous same-day dump byte-identical and no tmp file behind
-- [ ] A successful run produces the same `YYYY-MM-DD.dump` name and permissions as today
 
-**Verification:** `prove -l t/<new test>.t`; `shellcheck script/dump-db` clean.
+- [x] A failed `pg_dump` leaves the previous same-day dump byte-identical and no tmp file behind
+- [x] A successful run produces the same `YYYY-MM-DD.dump` name and permissions as today
+
+**Verification:** `prove -l t/45-dump-db.t`; `shellcheck script/dump-db` clean.
 
 ### Task 2: Docs
-- [ ] `docs/Installing.md` documents `DUMP_FOLDER` and `DAYS_TO_KEEP`
+
+- [x] `docs/Installing.md` documents `DUMP_FOLDER` and `DAYS_TO_KEEP` via `--help` reference
 
 ## Verification gate per commit
+
 - `prove -l` on the new test file
 - `shellcheck script/dump-db`
 - `tidy`/`perlcritic` only if Perl test files are touched
 
 ## Risks
 
-| Risk | Impact | Mitigation |
-|---|---|---|
-| Stale `.dump.tmp` left after SIGKILL | Low | `trap` covers normal failures; the unchanged prune removes it after the horizon |
-| Readers seeing a partially written file | Low | `mv` within the same filesystem is atomic; readers see old or new, never partial |
+| Risk                                    | Impact | Mitigation                                                                       |
+| --------------------------------------- | ------ | -------------------------------------------------------------------------------- |
+| Stale `.dump.tmp` left after SIGKILL    | Low    | `trap` covers normal failures; the unchanged prune removes it after the horizon  |
+| Readers seeing a partially written file | Low    | `mv` within the same filesystem is atomic; readers see old or new, never partial |
 
 ## Open questions
+
 - Create the tmp file in `DUMP_FOLDER` (same filesystem, required for atomic `mv`) and exclude
   `*.tmp` from the prune explicitly, or rely on the mtime horizon? Recommend the explicit exclusion.
