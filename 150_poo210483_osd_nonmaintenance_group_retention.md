@@ -13,9 +13,20 @@ for long-term reference, **development job groups first**, so that `/results` st
 results of jobs nobody will look at again, and so that no non-maintenance group keeps a
 `0`/unset ("forever") or multi-year value.
 
-Honest sizing: this is worth **~163 GB on 15 TB used (~1 %)**. It is hygiene and it removes the
-`forever` values, not the space fix — the space fix is the log cap and staging/increment
-results of the maintenance groups in plan 148.
+Honest sizing: this is worth **~161 GB on 15 TB used (~1 %)**. It is hygiene and it removes the
+`forever` values, not the space fix — the space fix is the log cap on the maintenance groups in
+plan 148 (the staging/increment *results* are maintenance evidence and stay, see plan 148 P2).
+
+## Status
+
+* Phase 1 — **executed 2026-11-19**: 133 Development groups (parent 9 default plus 60 group-level
+  overrides), expected ~58 GB. See "Executed changes" for the group list, audit event IDs and the
+  verification.
+* Phase 2 — in progress in a separate session: 226 remaining non-maintenance groups, results target
+  60 d (not 30 d), expected ~103 GB. See "Pre-change values" for the worklist.
+* Phase 3 — replacing `0`/unset values inside these groups; part of that session.
+* Independent of plan 148 (maintenance groups); the two plans share only the audit tooling
+  (plan 148 T1/T2).
 
 ## Policy (decided 2026-11-19)
 

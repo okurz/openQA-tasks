@@ -17,7 +17,8 @@ before any code change or commit (git-workflow).
 | Compression and archive tier rejected                              | okurz    | 2026-11-17 |
 | Atomic dump write: the one remaining fix                           | okurz    | 2026-11-17 |
 | Implementation in Bash with CLI flags (-f, -d, -h) and atomic trap | okurz    | 2026-11-19 |
-| Standalone test t/45-dump-db.t mocking pg_dump                     | okurz    | 2026-11-19 |
+| Rewrite to Python + Typer with pytest test suite                   | okurz    | 2026-11-19 |
+| Standalone test tests/test_dump_db.py mocking pg_dump              | okurz    | 2026-11-19 |
 | Docs reference --help as single source of truth                    | okurz    | 2026-11-19 |
 
 ## Problem
@@ -50,14 +51,14 @@ failed run destroys the same day's earlier good dump, leaves a partial file that
 
 ### Task 1: Atomic dump write
 
-**Files:** `script/dump-db`, `t/45-dump-db.t`.
+**Files:** `script/dump-db`, `tests/test_dump_db.py`.
 
 **Acceptance criteria**
 
 - [x] A failed `pg_dump` leaves the previous same-day dump byte-identical and no tmp file behind
 - [x] A successful run produces the same `YYYY-MM-DD.dump` name and permissions as today
 
-**Verification:** `prove -l t/45-dump-db.t`; `shellcheck script/dump-db` clean.
+**Verification:** `make test-python-unit`; `ruff check script/dump-db tests/` clean.
 
 ### Task 2: Docs
 
@@ -65,8 +66,8 @@ failed run destroys the same day's earlier good dump, leaves a partial file that
 
 ## Verification gate per commit
 
-- `prove -l` on the new test file
-- `shellcheck script/dump-db`
+- `pytest tests/test_dump_db.py`
+- `ruff check script/dump-db tests/`
 - `tidy`/`perlcritic` only if Perl test files are touched
 
 ## Risks
