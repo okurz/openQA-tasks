@@ -1,0 +1,1 @@
+Local, unversioned plan surface (never staged, never deleted): root = active plans, `wip/` = code started, `review/` = done awaiting review, `completed/` = archived, `todo.md` = backlog, `not_done/` = parked ideas; each plan carries `## Approvals`, `## Gates`, `## Blocked` (units gated on external events), `## Session starter`.
