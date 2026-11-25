@@ -3,7 +3,7 @@
 Todo: `tasks/todo.md` item 141.
 Branch: `feature/141_less_limited_scheduled_jobs_display` (clean tree,
 `origin/master` at `afb808231`).
-Numbering: 141 follows the todo item; `tasks/141_poo209244_recover_o3_docker_not_starting.md`
+Numbering: 141 follows the todo item; `tasks/218_poo209244_recover_o3_docker_not_starting.md`
 covers a distinct o3 infra ticket, no file collision.
 Status: implemented (3 commits), awaiting review.
 

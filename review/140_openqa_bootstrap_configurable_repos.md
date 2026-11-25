@@ -4,7 +4,7 @@ Ticket: https://progress.opensuse.org/issues/206340
 Branch: `feature/140_openqa_bootstrap_configurable_repos` (base `origin/master`
 7ce265bc6)
 Numbering: 138 and 139 are taken by `tasks/review/138_poo167749_no_global_selenium_implicit_wait.md`
-and `tasks/review/139_obs_pr_recovery_script.md`, so this plan continues with
+and `tasks/review/216_obs_pr_recovery_script.md`, so this plan continues with
 140 (max prefix in `tasks/` + 1, see `tasks/Readme.md`).
 Status: implemented, 5 commits, all checks green. See "Implemented commits".
 

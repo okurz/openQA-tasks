@@ -62,7 +62,7 @@ This enables full, scalable pagination across tens of thousands of scheduled job
 | Decision | Approver | Date |
 |---|---|---|
 | Keep PR #8027 minimal (as squashed on current branch) | user (`okurz`) | 2026-10-29 |
-| Create dedicated plan `tasks/142_server_side_scheduled_table.md` for full server-side pagination | user (`okurz`) | 2026-10-29 |
+| Create dedicated plan for full server-side pagination, written as `tasks/143_oqa1_server_side_scheduled_table.md` | user (`okurz`) | 2026-10-29 |
 
 ---
 
@@ -78,7 +78,7 @@ This enables full, scalable pagination across tens of thousands of scheduled job
 ## Session starter
 
 ```markdown
-Continue with task `tasks/142_server_side_scheduled_table.md` to switch `#scheduled` DataTables to `serverSide: true`.
+Continue with task `tasks/143_oqa1_server_side_scheduled_table.md` to switch `#scheduled` DataTables to `serverSide: true`.
 Load skills: `perl-dev`, `git-workflow`, `testing`.
 Branch: create feature branch `feature/142_server_side_scheduled_table` from `origin/master`.
 Commit unit: Start with Task 1 (backend support for DataTables pagination in `list_scheduled_ajax`).

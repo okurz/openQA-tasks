@@ -1,4 +1,4 @@
-# 141 Recover o3: docker.service fails to start, anubis down
+# 218 Recover o3: docker.service fails to start, anubis down
 
 Ticket: https://progress.opensuse.org/issues/209244 (o3 yields 502, docker
 service failed so anubis can't start)

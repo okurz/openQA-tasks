@@ -3,7 +3,7 @@ tasks/completed/
 
 _Howto:_ For every numbered task create an according implementation planning
 document in tasks/ in a numbered fashion, e.g. "11. my task" ->
-"tasks/011_my_task.md" and inform the user. Do not execute the plan without
+"tasks/<NNN>_<slug>.md" and inform the user. Do not execute the plan without
 confirmation.
 
 30. _DONE_ Offer each user to delete their user details on an openQA instance.

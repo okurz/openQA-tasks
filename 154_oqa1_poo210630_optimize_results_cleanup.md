@@ -2,34 +2,47 @@
 
 Context: openQA results and logs cleanup runtime optimization on https://openqa.suse.de/
 Ticket: poo#210630 (oqa1)
-Branch: `feature/154_oqa1_poo210630_optimize_results_cleanup` (branched from
-`origin/master` at `1f7748a4d`), worktree `~/local/os-autoinst/oqa-154-cleanup`
+Branch: `feature/154_oqa1_poo210630_optimize_results_cleanup` (rebased onto
+`origin/master` at `0362803c0`), worktree `~/local/os-autoinst/oqa-154-cleanup`,
+PR https://github.com/os-autoinst/openQA/pull/8147
 Numbering: Prefix `154`; builds on investigation in poo#210483 and poo#197483.
 
 ---
 
 ## Status (2026-11-20)
 
-Plan Tasks 1–3 plus one reviewer suggestion are implemented in three commits.
-The commit messages were rewritten on 2026-11-20 to carry the measured numbers
-below; the tree is unchanged by that rewrite (`git diff` against
-`backup/154-msgs-20261120` is empty).
+Plan Tasks 1–5 are implemented. The commit hashes and the measured numbers are
+below; the three v1 commits were renamed on 2026-11-20 without changing the tree
+(`git diff` against `backup/154-msgs-20261120` is empty). The hashes in the
+`Gates` table still refer to `backup/154-msgs-squashed`; the branch head uses the
+current ones.
 
 | Plan item from v1                                                      | Commit      | State                   |
 | :--------------------------------------------------------------------- | :---------- | :---------------------- |
-| T1 filter already-deleted results + early return in `delete_results`   | `2bd5ed5cb` | done                    |
-| T1 tests (also API semantics, review S2)                               | `2bd5ed5cb` | done                    |
-| T2 fast screenshot-link guard                                          | `cd48c3b49` | done                    |
-| T3 skip redundant `UPDATE jobs` (+ review S1 `delete_logs` accounting) | `cd48c3b49` | done                    |
-| Review extra: `result_size` filter in df-based emergency cleanup       | `ba3d88a93` | done                    |
-| T4 fast directory removal                                              | —           | open, see Task 6        |
-| T5 bulk/batched DB operations                                          | —           | open, see Task 7        |
-| T6 parallelize group cleanup                                           | —           | open, see Task 8        |
-| T7 docs + validation                                                   | —           | open, see Tasks 5 and 9 |
+| T1 filter already-deleted results + early return in `delete_results`   | `7a33528e1` | done                    |
+| T1 tests (also API semantics, review S2)                               | `7a33528e1` | done                    |
+| T2 fast screenshot-link guard                                          | `09d4cba03` | done                    |
+| T3 skip redundant `UPDATE jobs` (+ review S1 `delete_logs` accounting) | `09d4cba03` | done, benefit was nil |
+| Review extra: `result_size` filter in df-based emergency cleanup       | `b666a5c13` | done                    |
+| Task 4 `dry_run` argument plus stats note                              | `0eff38171` | done                    |
+| Task 5 validation procedure in `docs/Contributing.md`                  | `12fd68b81` | done                    |
+| Task 5 run against a restored dump                                     | —           | done, see below         |
+| T4 fast directory removal                                              | —           | shelved, 0.3% gain     |
+| T5 bulk/batched DB operations                                          | —           | deferred               |
+| T6 parallelize group cleanup                                           | —           | deferred, own rollout  |
+| T7 user-facing docs                                                    | —           | open, see Task 9       |
 
 Notable correction to v1: `t/01-jobs.t` does not exist; the tests live in
 `t/10-jobs-results.t`. v1 also listed the df-based `result_size` filter only as
 a reviewer nit; it became its own commit.
+
+**Correction applied (2026-11-20):** the premise behind T3, "one no-op
+`UPDATE jobs` per already-cleaned job per run", does not hold. DBIx::Class only
+issues an `UPDATE` when a value actually changes, so `delete_results` never
+produced those dead row versions. The guard is kept (it makes the intent
+explicit) and the message of `09d4cba03` was amended accordingly on 2026-11-20
+while rebasing; the anti-join guard from the same commit is the real win and is
+measured.
 
 ---
 
@@ -73,6 +86,95 @@ PostgreSQL backend 2831358 during job 25565101 identified:
 Caveats: the per-job timings are single-row microbenchmarks; the candidate
 counts ignore important-build and linked-job exceptions; the 14 h figure is an
 upper bound for the screenshot query alone, not an end-to-end measurement.
+
+---
+
+## Task 5 validation (2026-11-20, local restore of the 2026-11-19 dump)
+
+Setup: `~/Downloads/2026-11-19.dump` (custom format, 15.3 GB, PostgreSQL 18.6)
+restored into a throwaway local cluster (port 5499, `/home/okurz/local/pg`).
+Only the schema plus `jobs` (6,391,283 rows), `job_groups` (578),
+`job_group_parents` (29), `comments` (678,321), `users` (642) and
+`dbix_class_deploymenthandler_versions` were imported. `screenshots` (34 GB) and
+`screenshot_links` (38 GB) were skipped because the first restore attempt
+stalled the workstation for 14 minutes on their index builds and because the
+per-link cost is already measured on OSD.
+
+### Candidate sets (all 579 group scopes, side by side)
+
+| Metric                                          | old (`1f7748a4d`) | new (branch) | change |
+| :---------------------------------------------- | :---------------- | :----------- | :----- |
+| `find_jobs_with_expired_results` candidates     | 1,230,420         | 31,846       | −97.4% |
+| … of which `result_size = 0` among old ones     | 1,198,542         | —            | —      |
+| `find_jobs_with_expired_logs` candidates        | 559,065           | 559,064      | —      |
+| `find_expired_jobs` candidates                  | 94,506            | 94,506       | —      |
+| groups with results candidates                  | 273               | 273          | —      |
+
+- **Invariant holds**: of the 1,198,574 dropped ids, 1,198,542 have
+  `result_size = 0` and 32 have `result_size > 0`. All 32 belong to group 728
+  and their retention ran out *between* the two runs (expiry 15:47:21–15:47:29
+  UTC, old pass started 15:52 UTC, new pass finished 15:47:14 UTC), i.e. they
+  are retention drift, not filter loss. The single logs difference
+  (`25024388`) is the same drift. With both passes back-to-back, no job with
+  `result_size > 0` is dropped.
+- The size-0 candidate count matches the OSD measurement (1,198,542 vs
+  1,187,818). The new-predicate count is lower than the OSD figure (31,846 vs
+  201,214) because the local config's `result_storage_duration` differs and
+  because OSD ran its cleanup after the dump was taken; only 8 of the 578
+  groups inherit the config default, so this affects a small share.
+
+### Statements and wall time per group (transaction rolled back)
+
+| Run                                     | candidates | UPDATE statements | wall time |
+| :-------------------------------------- | :--------- | :---------------- | :-------- |
+| old, group 444 (BCI Language Images)    | 88,872     | 10                | 68.0 s    |
+| new, group 444                          | 10         | 10                | 0.8 s     |
+| new, dry run, group 305 (Kernel-KOTD)   | 7,576      | 0                 | 2.8 s     |
+| new, dry run, group 305, all writes     | 7,576      | 0 INSERT/UPDATE/DELETE | 2.8 s |
+
+- The dry run issues zero write statements and reports 19,965 jobs and 7,576
+  result candidates as would-be work.
+- **Premise 3 of the problem statement is refuted**: DBIx::Class does not issue
+  an `UPDATE` when the assigned values equal the loaded ones, so the old code
+  already produced no no-op updates for fully cleaned jobs (10 statements for
+  88,872 candidates). The gain of the new predicate is not fewer writes but not
+  visiting those jobs at all: 68.0 s → 0.8 s for group 444.
+- `results_bytes`/`logs_bytes` read 0 locally because the result directories the
+  dump refers to do not exist on this machine; the byte accounting is covered by
+  the test suite, not by this run.
+- `screenshots_bytes` cannot be measured without the screenshot tables, so the
+  42.4 ms anti-join figure from the OSD profiling remains the reference for the
+  per-job cost that the new predicate and the `LIMIT 1` guard avoid.
+
+### Filesystem probe (OSD, 2026-11-20, read-only)
+
+Probe of 14 job directories spread over 12 of the 24,343 prefix directories
+under `/var/lib/openqa/testresults` (XFS, 16 TB, 88% used), mean 176.8 files and
+6.9 MB per directory, scratch copies under `/var/lib/openqa/tmp/okurz`:
+
+| Measurement per job directory              | ms      |
+| :----------------------------------------- | :------ |
+| `list_tree` + `stat` per entry, cold cache | 343.9   |
+| `list_tree` + `stat` per entry, warm cache | 1.87    |
+| `list_tree` alone, warm                    | 1.14    |
+| `remove_tree` after the walk (current)     | 3.59    |
+| `remove_tree` alone (proposed in Task 6)   | 3.74    |
+| current total                              | 5.46    |
+| proposed total                             | 3.74    |
+
+Saving: 1.72 ms per directory, i.e. 148,448 × 1.72 ms ≈ 4.3 min per full run
+(0.3% of 25 h). The cold-cache cost is paid once by both variants, so the
+saving does not scale with it.
+
+### Task 6 status: shelved, precondition not met
+
+The probe above shows the traversal is not where the time goes: the proposed
+change only removes a warm re-walk, while cold metadata reads and the `unlink`
+per file stay. 0.3% does not justify changing the df-margin accounting, so Task
+6 is not started. Tasks 7 (batching, ~1–2 min of round-trip latency left) and 8
+(parallel groups, a real factor but a coordination change that needs its own
+rollout) are deferred to a follow-up; the current PR ships only the measured
+wins.
 
 ---
 
@@ -176,11 +278,22 @@ logs_bytes, screenshots_bytes})` so a production dry run is auditable.
 | :-------------------------------------------------------------------------------------------------- | :------- | :--------- |
 | Implement Tasks 1–3 and the df-cleanup `result_size` filter in the 154 worktree                     | okurz    | 2026-11-20 |
 | Rewrite the three commit messages to carry measured benchmark numbers                               | okurz    | 2026-11-20 |
-| Order remaining work as Task 4 (dry_run) → 5 (validation) → 6/7/8 → 9 (docs)                        | pending  | pending    |
-| `dry_run` is a Minion job argument (`[{dry_run => 1}]`), not a config setting                       | pending  | pending    |
-| Acceptance thresholds for the dump replay (≥80% candidates, no dropped results, zero no-op updates) | pending  | pending    |
-| Fast directory removal only after Task 5 shows filesystem time dominating                           | pending  | pending    |
+| Order remaining work as Task 4 (dry_run) → 5 (validation) → 6/7/8 → 9 (docs)                        | okurz    | 2026-11-20 |
+| `dry_run` is a Minion job argument (`[{dry_run => 1}]`), not a config setting                       | okurz    | 2026-11-20 |
+| Keep the existing `cleanup_min_free_dry_run` config for the df path; no config rename               | okurz    | 2026-11-20 |
+| Acceptance thresholds for the dump replay (≥80% candidates, no dropped results, zero no-op updates) | okurz    | 2026-11-20 |
+| Validate on the locally synced 2026-11-19 dump instead of fetching one from OSD                     | okurz    | 2026-11-20 |
+| Restore only the schema plus the tables the cleanup reads, skip the screenshot tables              | okurz    | 2026-11-20 |
+| Drop the local restore cluster after the validation                                                 | okurz    | 2026-11-20 |
+| Amend the `09d4cba03` message to drop the refuted no-op update claim                                | okurz    | 2026-11-20 |
+| Fast directory removal only after Task 5 shows filesystem time dominating                           | okurz    | 2026-11-20 |
+| Ship only the measured wins as PR #8147; Tasks 6–8 deferred                                        | okurz    | 2026-11-20 |
 | Parallel group cleanup only after a dry-run OSD validation                                          | pending  | pending    |
+
+Task 5 outcome against the acceptance thresholds: candidate reduction 97.4%
+(≥80% ✓), no job with `result_size > 0` dropped (✓, 32 drift ids explained),
+no no-op updates (✓, and none existed before either — see the correction in the
+status section).
 
 ---
 
@@ -191,9 +304,9 @@ logs_bytes, screenshots_bytes})` so a production dry run is auditable.
 | Commit 1 `2bd5ed5cb`   | skip jobs with deleted results (done)         | `make tidy && make test-checkstyle && COVERAGE=1 make test-unit-and-integration TESTS="t/10-jobs-results.t t/42-df-based-cleanup.t t/api/10-jobgroups.t" && make check-line-coverage && make test-gitlint` |
 | Commit 2 `cd48c3b49`   | skip no-op screenshot/job updates (done)      | `make tidy && make test-checkstyle && COVERAGE=1 make test-unit-and-integration TESTS="t/10-jobs-results.t t/42-screenshots.t" && make check-line-coverage && make test-gitlint`                           |
 | Commit 3 `ba3d88a93`   | skip size-0 jobs in df cleanup (done)         | `make tidy && make test-checkstyle && COVERAGE=1 make test-unit-and-integration TESTS=t/42-df-based-cleanup.t && make check-line-coverage && make test-gitlint`                                            |
-| Commit 4               | `dry_run` argument and stats note             | `make tidy && make test-checkstyle && COVERAGE=1 make test-unit-and-integration TESTS=t/42-df-based-cleanup.t && make check-line-coverage && make test-gitlint`                                            |
-| Commit 5               | dump-replay validation procedure in docs      | `make test-markdown && SKIP_UPDATE_DEPS=1 make test-checkstyle && make test-gitlint`                                                                                                                       |
-| Task 5 run (no commit) | execute the procedure against a restored dump | `pg_restore` + per-group timings + `git diff` of id sets; record numbers in the plan before starting Task 6                                                                                                |
+| Commit 4 `0eff38171`   | `dry_run` argument and stats note (done)      | `make tidy && make test-checkstyle SKIP_UPDATE_DEPS=1 && COVERAGE=1 make test-unit-and-integration TESTS="t/10-jobs-results.t t/42-df-based-cleanup.t t/42-screenshots.t t/14-grutasks.t t/36-job_group_settings.t" && jq uncovered lines per changed file in cover_db/codecov.json && make test-gitlint` |
+| Commit 5 `12fd68b81`   | dump-replay validation procedure in docs (done) | `make test-markdown && SKIP_UPDATE_DEPS=1 make test-checkstyle && make test-gitlint`                                                                                                                       |
+| Task 5 run (no commit) | execute the procedure against a restored dump (done) | `pg_restore --schema-only` + `--data-only -L whitelist` + per-group candidate diff + statement counts; numbers recorded above                                                                                |
 | Commit 6               | fast directory removal                        | `make tidy && make test-checkstyle && COVERAGE=1 make test-unit-and-integration TESTS=t/10-jobs-results.t && make check-line-coverage && make test-gitlint`                                                |
 | Commit 7               | batched database operations                   | `make tidy && make test-checkstyle && COVERAGE=1 make test-unit-and-integration TESTS="t/10-jobs-results.t t/42-df-based-cleanup.t" && make check-line-coverage && make test-gitlint`                      |
 | Commit 8               | parallel group cleanup                        | `make tidy && make test-checkstyle && COVERAGE=1 make test-unit-and-integration TESTS=t/42-df-based-cleanup.t && make check-line-coverage && make test-gitlint`                                            |
@@ -207,13 +320,15 @@ logs_bytes, screenshots_bytes})` so a production dry run is auditable.
 Continue with execution plan `tasks/154_oqa1_poo210630_optimize_results_cleanup.md`.
 Load skills: `perl-dev`, `testing`, `git-workflow`.
 Worktree: `~/local/os-autoinst/oqa-154-cleanup`, branch
-`feature/154_oqa1_poo210630_optimize_results_cleanup`, base `1f7748a4d`,
-currently 3 commits (Tasks 1–3 done, messages carry the OSD measurements).
-Commit unit: start with Task 4 (`dry_run` argument for the periodic cleanup,
-`lib/OpenQA/Task/Job/Limit.pm` + `JobGroups.pm` + `t/42-df-based-cleanup.t`).
-Then Task 5: document and run the dump-replay validation before touching
-Tasks 6–8.
+`feature/154_oqa1_poo210630_optimize_results_cleanup`, rebased onto
+`origin/master` at `0362803c0`, 5 commits, PR
+https://github.com/os-autoinst/openQA/pull/8147 open.
+State: Tasks 1–5 shipped in the PR; Task 6 shelved (filesystem probe: 0.3% gain);
+Tasks 7–8 deferred, Task 9 (user docs) still open.
+Next commit unit: Task 9 (user-facing cleanup documentation, `docs/UsersGuide.md`)
+on top of the PR branch, or a follow-up covering Tasks 7–8 after the PR merged
+and released on OSD.
 Confirm with the user before: (a) running any cleanup in write mode against any
 database, (b) restoring a production dump or accessing OSD, (c) starting
-Tasks 6–8, (d) pushing or opening a PR.
+Tasks 7–8, (d) pushing to or extending the PR.
 ```

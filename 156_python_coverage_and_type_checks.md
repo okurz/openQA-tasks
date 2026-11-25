@@ -42,8 +42,10 @@ Verified on 2026-11-20 (Tumbleweed, Python 3.13):
   exactly 2 diagnostics, both at `script/openqa-label-all:81`, caused by the
   module globals `openqa_cmd = ""` and `args = ""`.
 - `vulture <pyfiles> --min-confidence 80` is clean.
-- No `ty` RPM exists in Tumbleweed (`zypper se --match-exact ty` finds nothing);
-  vulture is only packaged as `python313-vulture`, not `python3-vulture`.
+- No version-agnostic `ty`/`vulture` RPM exists in Tumbleweed: `zypper se
+  --match-exact ty`/`python3-vulture` find nothing. Verified again on
+  2026-11-25: only the python-version-pinned `python313-ty` and
+  `python313-vulture` exist.
 
 Goal: add the Python test infrastructure, close the coverage holes first, then
 make `make test`/`test-checkstyle` enforce 100% statement+branch coverage for
@@ -154,21 +156,32 @@ Files: `Makefile`, `pyproject.toml`.
   `tools/` without tests now fails the gate, and extensionless scripts are only
   measured once a test imports them.
 
-## Task 5: Add type and dead-code checks (guarded)
+## Task 5: Add type and dead-code checks (fatal)
 
 Commit: `build: add python type and code-health checks`
 
-Files: `Makefile` (plus `pyproject.toml` only if ty needs configuration).
+Files: `Makefile`, `dependencies.yaml`, `dist/rpm/openQA.spec`.
+
+Decision (2026-11-25): the checks are fatal, not skipped, and the tools are
+declared dependencies of the devel package.
 
 - `PYTHON ?= python3`
 - `test-python-types`: `ty check --python "$$($(PYTHON) -c 'import sys; print(sys.prefix)')" $(pyfiles)`
 - `test-python-code-health`: `vulture $(pyfiles) --min-confidence 80`
-- Both guard on tool presence the same way `test-ruff` does (print a warning and
-  skip when the command is missing) so environments without `ty`/`vulture` do
-  not fail.
+- Both fail when the tool is missing, with an install hint, following
+  `test-shellcheck` (not `test-ruff`, which warns and skips).
 - `test-python-static-checks: test-ruff test-python-conventions test-python-types test-python-code-health`
-- Do not add `ty`/`vulture` to `dependencies.yaml`/`dist/rpm/openQA.spec` in
-  this plan: `ty` has no Tumbleweed RPM and vulture is only `python313-vulture`.
+- `dependencies.yaml` `style_check_requires` gains `python3-ty` and
+  `python3-vulture`, then `make update-deps` regenerates the spec.
+- Resolution verified in the distribution metadata (2026-11-25): Tumbleweed's
+  `python313-ty`/`python313-vulture` provide `python3-ty`/`python3-vulture`, and
+  Leap 16.0 ships both packages under that name. `style_check_requires` only
+  reaches `openQA-devel`/`openQA-no-selenium-devel`, which are not built below
+  `suse_version` 1600, so Leap 15.6 builds (openQA, -common, -client, -worker)
+  are unaffected.
+- `pyfiles` must also match `*.py` by extension: `file --mime-type` reports
+  `tests/test_check_markdown.py` as `text/html` because of the HTML anchors in
+  its fixtures, which would silently drop it from ruff, ty and vulture.
 
 ## Deferred (not in this plan)
 
@@ -185,6 +198,10 @@ Files: `Makefile` (plus `pyproject.toml` only if ty needs configuration).
   for Leap 15.6 (Python 3.11). The script uses no 3.12-only syntax, so runtime
   is unaffected, but the declaration is a forward-looking choice shared with
   `../os-autoinst-scripts`.
+- The fatal ty/vulture targets only work once the devel package rebuild carries
+  the new `Requires`, so the CircleCI `checkstyle` job can be red between the
+  merge and the `opensuse/openqa_ci` image refresh. Leap 16.0 builds the devel
+  package and must keep shipping `python313-ty`/`python313-vulture`.
 - `script/openqa-label-all` has module-level mutable globals; the Task 3
   annotations make ty pass without refactoring, so the tests in Task 2 must not
   depend on import-time state leaking between cases (reset `openqa_cmd`/`args`
@@ -199,8 +216,9 @@ Files: `Makefile` (plus `pyproject.toml` only if ty needs configuration).
 | Fix missing coverage first, enable the 100% gate afterwards                          | okurz                | 2026-11-20 |
 | Align `requires-python` with qem-bot or `../os-autoinst-scripts`                     | okurz                | 2026-11-20 |
 | Fix ty diagnostics and add ty checks accordingly                                     | okurz                | 2026-11-20 |
-| Use `requires-python = ">=3.12"` (os-autoinst-scripts variant)                       | pending confirmation | -          |
-| ty/vulture targets skip (not fail) when the tool is missing                          | pending confirmation | -          |
+| Use `requires-python = ">=3.12"` (os-autoinst-scripts variant)                       | okurz                | 2026-11-25 |
+| ty/vulture targets fail (not skip) and both tools become devel dependencies          | okurz                | 2026-11-25 |
+| Leap 15.6 only needs openQA, -common, -client, -worker; the devel packages are excluded | okurz             | 2026-11-25 |
 | No pytest-xdist and no coverage.xml in this plan                                     | pending confirmation | -          |
 | 156 owns the generic Python test infrastructure; #8139 carries only the shell change | pending confirmation | -          |
 | Python rewrite of dump-db as a separate follow-up PR after 156                       | pending confirmation | -          |

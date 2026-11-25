@@ -1,4 +1,4 @@
-# 405 poo45671: Improve developer mode connection hint for non-qemu machines
+# 136 poo45671: Improve developer mode connection hint for non-qemu machines
 
 Ticket: https://progress.opensuse.org/issues/45671
 Branch: feature/405_poo45671_improve_developer_mode_hint
