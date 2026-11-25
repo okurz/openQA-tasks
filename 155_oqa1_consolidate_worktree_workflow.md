@@ -492,8 +492,16 @@ numbers were normalized to their file prefix and one reference broken by an
 earlier prefix-level rewrite was corrected (`189_…_test.md` → `188_…`). The 28
 branches whose `okurz/*` upstream the consolidation set without being asked had
 that upstream removed again; the 8 branches created from clone refs keep theirs.
-The plan surface is committed (owner-approved git actions in `tasks/`), the archive carries `DELETE-AFTER-2026-12-20.md` with the exact
-verification commands, and the three stale `/tmp/opencode/*` worktree
+The plan surface is committed (owner-approved git actions in `tasks/`) and
+the repository history was rewritten before publishing: internal
+hostnames, the o3 management subnet and the team/distribution mail aliases
+are replaced by `<internal>`/`<internal-ip-N>` placeholders and the default
+database password in the example `psql` URLs by `<password>`, while
+`okurz@suse.de` and the public host `openqa.suse.de` stay. All commits were
+rewritten and force-pushed; the pre-rewrite history is kept locally as
+`local/openQA-tasks-pre-redaction-20261125.bundle` with the replacement
+lists next to it. The archive carries `DELETE-AFTER-2026-12-20.md` with the
+exact verification commands, and the three stale `/tmp/opencode/*` worktree
 registrations were removed (their branches and objects are untouched).
 Never delete a clone directory; never push.
 ```
